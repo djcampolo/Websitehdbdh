@@ -3,36 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medicine Dietary Checker</title>
+  <title>AI Medicine Dietary Checker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
-    <h1>Medicine Dietary Restriction Checker</h1>
+    <h1>AI-Powered Medicine Dietary Restriction Checker</h1>
     <input type="text" id="medicineInput" placeholder="Enter medicine name..." />
     <button onclick="checkRestrictions()">Check</button>
-    <div id="resultBox"></div>
+    <div id="resultBox">Enter a medicine to get started.</div>
   </div>
 
   <script>
-    const medicineData = {
-      "ibuprofen": "Avoid alcohol. Take with food to reduce stomach upset.",
-      "warfarin": "Limit foods high in vitamin K (e.g., spinach, kale).",
-      "metformin": "Take with meals. Avoid excessive alcohol.",
-      "atorvastatin": "Avoid grapefruit and grapefruit juice.",
-      "lisinopril": "Limit potassium-rich foods (e.g., bananas, oranges)."
-    };
-
-    function checkRestrictions() {
-      const input = document.getElementById('medicineInput').value.trim().toLowerCase();
+    async function checkRestrictions() {
+      const input = document.getElementById('medicineInput').value.trim();
       const resultBox = document.getElementById('resultBox');
 
-      if (input in medicineData) {
-        resultBox.innerHTML = `<strong>Restrictions for ${input}:</strong><br>${medicineData[input]}`;
-      } else if (input === '') {
+      if (!input) {
         resultBox.innerHTML = "Please enter a medicine name.";
-      } else {
-        resultBox.innerHTML = "No information found for this medicine.";
+        return;
+      }
+
+      resultBox.innerHTML = "Searching dietary restrictions using AI...";
+
+      try {
+        const response = await fetch('http://localhost:5000/check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ medicine: input })
+        });
+
+        const data = await response.json();
+        resultBox.innerHTML = `<strong>AI Result for "${input}":</strong><br>${data.result}`;
+      } catch (error) {
+        resultBox.innerHTML = "Something went wrong. Please try again later.";
+        console.error(error);
       }
     }
   </script>
